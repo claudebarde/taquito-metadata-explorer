@@ -310,7 +310,7 @@
 		<div class="networks-list">
 			<p
 				on:click={() => {
-					Tezos.setRpcProvider('https://mainnet-tezos-giganode.io');
+					Tezos.setRpcProvider('https://mainnet-tezos.giganode.io');
 					network = 'Mainnet';
 				}}>
 				Mainnet
