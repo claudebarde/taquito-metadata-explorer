@@ -16,8 +16,14 @@
 	const examples = [
 		"KT1TLvewkn73Hb1YTDyX6pE6oD8qVKGTZax3",
 		"KT1GPDQvmV37orH1XH3SZmVVKFaMuzzqsmN7",
+		"KT1TLvewkn73Hb1YTDyX6pE6oD8qVKGTZax3",
+		"KT1Peb7x8DfBMnHyyzdSDgpSyAvaZXLuTz5g",
+		"KT1Dkn2fHtjtfLJ6SeTRQ7BujKEPk1pGjBAE",
+		"KT191tWhzxUvx3ziu1sMYrDweZLrQfgbvGC5",
+		"KT1RyihALYEsVCcKP7Ya6teCHs9ii5ZHQxvj",
 	];
 	let network: Network = "Delphinet";
+	let expandAll = false;
 
 	const matchURL = (str: string): string => {
 		const regex = new RegExp(
@@ -52,9 +58,9 @@
 					.map((author) => matchURL(author))
 					.join(" / ")}</div></div>`;
 			} else if (typeof obj[el] === "object") {
-				result += `<div class="metadata__details"><div><strong><em>${el}</em></strong>:</div><div>${parseObject(
+				result += `<details><summary><strong><em>${el}</em></strong>:</summary><div>${parseObject(
 					obj[el]
-				)}</div></div>`;
+				)}</div></details>`;
 			}
 		}
 
@@ -89,6 +95,17 @@
 		} else {
 			contractAddressError = true;
 			loadingMetadata = false;
+		}
+	};
+
+	const expandOrClose = () => {
+		const details = document.getElementsByTagName("details");
+		if (expandAll) {
+			[...details].forEach((detail) => (detail.open = false));
+			expandAll = false;
+		} else {
+			[...details].forEach((detail) => (detail.open = true));
+			expandAll = true;
 		}
 	};
 
@@ -161,11 +178,13 @@
 			margin: 0px;
 			margin-right: 10px;
 
-			&:hover .examples span#examples-arrowhead-up {
-				display: inline;
+			& .examples span#examples-arrowhead-down {
+				transition: 0.4s;
 			}
+
 			&:hover .examples span#examples-arrowhead-down {
-				display: none;
+				transform: rotate(180deg);
+				transition: 0.4s;
 			}
 
 			&:hover .examples {
@@ -181,10 +200,6 @@
 				justify-content: center;
 				align-items: center;
 				transition: 0.3s;
-
-				span#examples-arrowhead-up {
-					display: none;
-				}
 
 				&:hover + .examples-list {
 					display: block;
@@ -228,11 +243,13 @@
 	.networks-wrapper {
 		position: relative;
 
-		&:hover .networks span#networks-arrowhead-up {
-			display: inline;
+		& .networks span#networks-arrowhead-down {
+			transition: 0.4s;
 		}
+
 		&:hover .networks span#networks-arrowhead-down {
-			display: none;
+			transform: rotate(180deg);
+			transition: 0.4s;
 		}
 
 		&:hover .networks {
@@ -252,10 +269,6 @@
 			transition: 0.3s;
 			height: 30px;
 
-			span#networks-arrowhead-up {
-				display: none;
-			}
-
 			&:hover + .networks-list {
 				display: block;
 			}
@@ -272,7 +285,7 @@
 			border: solid 1px rgba(156, 163, 175, 1);
 			border-bottom-left-radius: $border-radius;
 			border-bottom-right-radius: $border-radius;
-			width: 98.5%;
+			width: 99%;
 			transition: 0.3s;
 
 			&:hover {
@@ -284,6 +297,22 @@
 				margin: 0px;
 				padding: 5px 10px;
 				cursor: pointer;
+			}
+		}
+	}
+
+	.links {
+		width: 60%;
+		display: flex;
+		justify-content: space-around;
+
+		span {
+			color: rgb(0, 100, 200);
+			text-decoration: none;
+			cursor: pointer;
+
+			&:hover {
+				text-decoration: underline;
 			}
 		}
 	}
@@ -304,8 +333,7 @@
 	<div class="networks-wrapper">
 		<div class="networks">
 			{network}&nbsp;
-			<span id="networks-arrowhead-down">&#x25BC;</span><span
-				id="networks-arrowhead-up">&#x25B2;</span>
+			<span id="networks-arrowhead-down">&#x25BC;</span>
 		</div>
 		<div class="networks-list">
 			<p
@@ -336,8 +364,7 @@
 		<div class="examples-wrapper">
 			<div class="examples">
 				Examples &nbsp;
-				<span id="examples-arrowhead-down">&#x25BC;</span><span
-					id="examples-arrowhead-up">&#x25B2;</span>
+				<span id="examples-arrowhead-down">&#x25BC;</span>
 			</div>
 			<div class="examples-list">
 				{#each examples as example}
@@ -369,24 +396,60 @@
 	{/if}
 	<br />
 	{#if metadata}
+		<div class="links">
+			<div>
+				<a
+					href={`https://better-call.dev/${network.toLowerCase()}/${contractAddress}/storage`}
+					target="_blank"
+					rel="noopener noreferrer nofollower">See contract storage</a>
+			</div>
+			<div>
+				<span
+					on:click={expandOrClose}>{expandAll ? 'Close all' : 'Expand all'}</span>
+			</div>
+		</div>
 		<div class="metadata-display">
 			{#each Object.keys(metadata) as property}
 				<div class="metadata">
 					{#if property === 'metadata'}
-						<div><strong>{property.toUpperCase()}</strong>:</div>
+						<details>
+							<summary>
+								<strong>{property.toUpperCase()}</strong>:
+							</summary>
+							<div>
+								{@html parseObject(metadata.metadata)}
+							</div>
+						</details>
+						<!--<div><strong>{property.toUpperCase()}</strong>:</div>
 						<div>
 							{@html parseObject(metadata.metadata)}
-						</div>
+						</div>-->
 					{:else if property === 'uri'}
-						<div><strong>{property.toUpperCase()}</strong>:</div>
+						<details>
+							<summary>
+								<strong>{property.toUpperCase()}</strong>:
+							</summary>
+							<div class="metadata__details">
+								{@html matchURL(metadata[property])}
+							</div>
+						</details>
+						<!--<div><strong>{property.toUpperCase()}</strong>:</div>
 						<div class="metadata__details">
 							{@html matchURL(metadata[property])}
-						</div>
+						</div>-->
 					{:else}
-						<div><strong>{property.toUpperCase()}</strong>:</div>
+						<details>
+							<summary>
+								<strong>{property.toUpperCase()}</strong>:
+							</summary>
+							<div class="metadata__details">
+								{metadata[property]}
+							</div>
+						</details>
+						<!--<div><strong>{property.toUpperCase()}</strong>:</div>
 						<div class="metadata__details">
 							{metadata[property]}
-						</div>
+						</div>-->
 					{/if}
 				</div>
 			{/each}
