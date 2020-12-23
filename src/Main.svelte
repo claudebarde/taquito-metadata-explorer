@@ -4,13 +4,14 @@
 	import { TezosToolkit } from "@taquito/taquito";
 	import { Tzip16Module, tzip16 } from "@taquito/tzip16";
 	import { validateContractAddress } from "@taquito/utils";
-	import { location } from "svelte-spa-router";
+	import { Parser, emitMicheline } from "@taquito/michel-codec";
 
 	export let params;
 
 	type Network = "mainnet" | "carthagenet" | "delphinet" | undefined;
 
 	let Tezos: TezosToolkit;
+	let parser: Parser;
 	let contractAddress = "";
 	let loadingMetadata = false;
 	let contractAddressError = false;
@@ -110,9 +111,17 @@
 					.map((author) => matchURL(author))
 					.join(" / ")}</div></div>`;
 			} else if (typeof obj[el] === "object") {
-				result += `<details><summary><strong><em>${el}</em></strong>:</summary><div>${parseObject(
-					obj[el]
-				)}</div></details>`;
+				// prettyprints JSON Michelson
+				try {
+					const code = parser.parseJSON(obj[el]);
+					result += `<details><summary><strong><em>${el}</em></strong>:</summary><div>${emitMicheline(
+						code
+					)}</div></details>`;
+				} catch (error) {
+					result += `<details><summary><strong><em>${el}</em></strong>:</summary><div>${parseObject(
+						obj[el]
+					)}</div></details>`;
+				}
 			}
 		}
 
@@ -174,6 +183,7 @@
 	onMount(() => {
 		Tezos = new TezosToolkit("https://testnet-tezos.giganode.io");
 		Tezos.addExtension(new Tzip16Module());
+		parser = new Parser();
 		// loads parameters from URL
 		if (
 			params.network &&
