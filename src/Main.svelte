@@ -115,9 +115,14 @@
 					result += `<details><summary><strong><em>${el}</em></strong>:</summary><div>${obj[
 						el
 					]
-						.map((view) => {
-							const name = view.name;
-							delete view.name;
+						.map((view, i) => {
+							let name: string | number;
+							if (view.name) {
+								name = view.name;
+								delete view.name;
+							} else {
+								name = i;
+							}
 							return `<details><summary><strong><em>${name}</em></strong>:</summary><div>${parseObject(
 								view
 							)}</div></details>`;
@@ -405,6 +410,7 @@
 		width: 60%;
 		display: flex;
 		justify-content: space-around;
+		padding: 15px 0px;
 
 		span {
 			color: rgb(0, 100, 200);
