@@ -111,16 +111,30 @@
 					.map((author) => matchURL(author))
 					.join(" / ")}</div></div>`;
 			} else if (typeof obj[el] === "object") {
-				// prettyprints JSON Michelson
-				try {
-					const code = parser.parseJSON(obj[el]);
-					result += `<details><summary><strong><em>${el}</em></strong>:</summary><div>${emitMicheline(
-						code
-					)}</div></details>`;
-				} catch (error) {
-					result += `<details><summary><strong><em>${el}</em></strong>:</summary><div>${parseObject(
-						obj[el]
-					)}</div></details>`;
+				if (el === "views" && Array.isArray(obj[el])) {
+					result += `<details><summary><strong><em>${el}</em></strong>:</summary><div>${obj[
+						el
+					]
+						.map((view) => {
+							const name = view.name;
+							delete view.name;
+							return `<details><summary><strong><em>${name}</em></strong>:</summary><div>${parseObject(
+								view
+							)}</div></details>`;
+						})
+						.join("")}</div></details>`;
+				} else {
+					// prettyprints JSON Michelson
+					try {
+						const code = parser.parseJSON(obj[el]);
+						result += `<details><summary><strong><em>${el}</em></strong>:</summary><div>${emitMicheline(
+							code
+						)}</div></details>`;
+					} catch (error) {
+						result += `<details><summary><strong><em>${el}</em></strong>:</summary><div>${parseObject(
+							obj[el]
+						)}</div></details>`;
+					}
 				}
 			}
 		}
