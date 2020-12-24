@@ -324,6 +324,7 @@
 				border-bottom-right-radius: $border-radius;
 				width: 99%;
 				transition: 0.3s;
+				z-index: 100;
 
 				&:hover {
 					display: block;
@@ -334,6 +335,10 @@
 					margin: 0px;
 					padding: 5px 10px;
 					cursor: pointer;
+
+					&:hover {
+						background-color: lighten(rgba(229, 231, 235, 1), 5);
+					}
 				}
 			}
 		}
@@ -429,6 +434,14 @@
 		left: -1000px;
 		top: -1000px;
 	}
+
+	.integrety-test-result {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		margin: 0px 5px;
+		font-size: 1rem;
+	}
 </style>
 
 <main>
@@ -483,14 +496,15 @@
 				<span id="examples-arrowhead-down">&#x25BC;</span>
 			</div>
 			<div class="examples-list">
-				{#each examples as example}
+				{#each examples as example, index}
 					<p
 						on:click={() => {
 							contractAddress = example.address;
 							network = example.network;
 							Tezos.setRpcProvider(rpcProviders[example.network]);
 							loadMetadata();
-						}}>
+						}}
+						style={index === examples.length - 1 ? 'border-bottom-left-radius: 20px;border-bottom-right-radius: 20px;' : ''}>
 						{example.text}
 					</p>
 				{/each}
@@ -545,10 +559,6 @@
 								{@html parseObject(metadata.metadata)}
 							</div>
 						</details>
-						<!--<div><strong>{property.toUpperCase()}</strong>:</div>
-						<div>
-							{@html parseObject(metadata.metadata)}
-						</div>-->
 					{:else if property === 'uri'}
 						<details>
 							<summary>
@@ -558,10 +568,24 @@
 								{@html matchURL(metadata[property])}
 							</div>
 						</details>
-						<!--<div><strong>{property.toUpperCase()}</strong>:</div>
-						<div class="metadata__details">
-							{@html matchURL(metadata[property])}
-						</div>-->
+					{:else if property === 'integrityCheckResult'}
+						<details>
+							<summary>
+								<strong>{property.toUpperCase()}</strong>
+								{#if metadata[property]}
+									<span class="integrety-test-result success">
+										&#10004;&#65039;
+									</span>:
+								{:else}
+									<span class="integrety-test-result success">
+										&#10007;
+									</span>:
+								{/if}
+							</summary>
+							<div class="metadata__details">
+								{metadata[property]}
+							</div>
+						</details>
 					{:else}
 						<details>
 							<summary>
@@ -571,10 +595,6 @@
 								{metadata[property]}
 							</div>
 						</details>
-						<!--<div><strong>{property.toUpperCase()}</strong>:</div>
-						<div class="metadata__details">
-							{metadata[property]}
-						</div>-->
 					{/if}
 				</div>
 			{/each}

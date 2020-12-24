@@ -39,6 +39,25 @@ a {
   padding: 20px 0px;
   width: 70%;
   word-wrap: break-word;
+  position: relative;
+  scroll-padding: 50px 0px 0px 50px;
+  /*background: linear-gradient(#ffffff 33%, rgba(255, 255, 255, 0)),
+    linear-gradient(rgba(255, 255, 255, 0), #ffffff 66%) 0 100%,
+    radial-gradient(
+      farthest-side at 50% 0,
+      rgba(34, 34, 34, 0.5),
+      rgba(0, 0, 0, 0)
+    ),
+    radial-gradient(
+        farthest-side at 50% 100%,
+        rgba(34, 34, 34, 0.5),
+        rgba(0, 0, 0, 0)
+      )
+      0 100%;
+  background-color: #ffffff;
+  background-repeat: no-repeat;
+  background-attachment: local, local, scroll, scroll;
+  background-size: 100% 45px, 100% 45px, 100% 15px, 100% 15px;*/
 }
 
 .metadata {
@@ -69,13 +88,42 @@ a {
     background-color: rgba(243, 244, 246, 1);
     transition: 0.3s;
 
+    summary {
+      outline: none;
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+    }
+
+    summary::-webkit-details-marker {
+      display: none;
+    }
+
+    summary:before {
+      background-image: url("../../public/images/taco.png");
+      background-size: contain;
+      float: left;
+      height: 32px;
+      width: 32px;
+      content: " ";
+      margin-right: 10px;
+      cursor: pointer;
+    }
+
     &[open] {
       background-color: white;
-    }
-  }
 
-  summary {
-    outline: none;
+      & > summary:before {
+        background: url("../../public/images/taco-eaten.png");
+        background-size: contain;
+        float: left;
+        height: 32px;
+        width: 32px;
+        content: " ";
+        margin-right: 10px;
+        cursor: pointer;
+      }
+    }
   }
 }
 
