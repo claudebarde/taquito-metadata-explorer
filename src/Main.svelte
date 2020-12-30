@@ -73,7 +73,7 @@
 	const rpcProviders = {
 		mainnet: "https://mainnet-tezos.giganode.io",
 		delphinet: "https://delphinet-tezos-giganode.io", // "https://delphinet.smartpy.io",
-		carthagenet: "https://carthagenet.api.tez.ie",
+		carthagenet: "https://carthagenet.smartpy.io",
 	};
 	let expandAll = false;
 	let contractLink = "";
