@@ -72,8 +72,8 @@
 	];
 	const rpcProviders = {
 		mainnet: "https://mainnet-tezos.giganode.io",
-		delphinet: "https://delphinet.smartpy.io", //"https://delphinet-tezos-giganode.io",
-		carthagenet: "https://carthagenet.smartpy.io",
+		delphinet: "https://delphinet-tezos-giganode.io", // "https://delphinet.smartpy.io",
+		carthagenet: "https://carthagenet.api.tez.ie",
 	};
 	let expandAll = false;
 	let contractLink = "";
@@ -575,6 +575,12 @@
 								{#if metadata[property]}
 									<span class="integrety-test-result success">
 										&#10004;&#65039;
+									</span>:
+								{:else if metadata[property] === undefined}
+									<span
+										class="integrety-test-result success"
+										style="font-size:0.6rem;font-weight:bold;margin-left:10px">
+										N/A
 									</span>:
 								{:else}
 									<span class="integrety-test-result success">
