@@ -20,18 +20,38 @@
 	let network: Network = "delphinet";
 	const examples: { network: Network; address: string; text: string }[] = [
 		{
-			network: "carthagenet",
-			address: "KT1FeMKGGvdWiA4r5RaucoEUAa8cTEXSSpCX",
-			text: "Tezos Storage",
-		},
-		{
-			network: "carthagenet",
-			address: "KT1A1mR7zS8cWBehnf5wa6eY1SwCY6Teigne",
+			network: "delphinet",
+			address: "KT1KGkToC8UUJBJLqHcLRkv7xvjWd8JwUuTo",
 			text: "HTTPS",
 		},
 		{
-			network: "carthagenet",
-			address: "KT1PBndiMVyeptfQejZKYcSB6YmucaJdXVBQ",
+			network: "delphinet",
+			address: "KT1WTGDQ9j2mFE7SbgmoixNAVXH1ynjdagon",
+			text: "HTTPS empty metadata",
+		},
+		{
+			network: "delphinet",
+			address: "KT194AJC8UQPguynGdJfEVynF9wfUghDjHSt",
+			text: "HTTPS with emoji",
+		},
+		{
+			network: "delphinet",
+			address: "KT1UQyKUoCat9oQNHPGMDypQ4mWW44DFWzXt",
+			text: "HTTPS invalida metadata",
+		},
+		{
+			network: "delphinet",
+			address: "KT1PHNmaHvQNjt1LTqdWobJUi2aeDeWUdQUq",
+			text: "HTTPS with sha256",
+		},
+		{
+			network: "delphinet",
+			address: "KT1Bhj5fgQioJYnFbg8jeki5SgRd7ZsCfhwp",
+			text: "HTTPS invalid sha256",
+		},
+		{
+			network: "delphinet",
+			address: "KT1BfdzrP3ybxSbQCNZrmdk2Y5AQjRK1KKkz",
 			text: "IPFS",
 		},
 		{
@@ -69,10 +89,20 @@
 			address: "KT1RyihALYEsVCcKP7Ya6teCHs9ii5ZHQxvj",
 			text: "Tezos Storage",
 		},
+		{
+			network: "delphinet",
+			address: "KT1KTkzGMHN4P1XvT4X1kFT5ubcvzxs6ZfSq",
+			text: "Tezos Storage - metadata in current contract",
+		},
+		{
+			network: "delphinet",
+			address: "KT1BAQ3nEsLrEeZdkij8KiekaWUVQERNF1Hi",
+			text: "Tezos Storage - metadata in another contract",
+		},
 	];
 	const rpcProviders = {
 		mainnet: "https://mainnet-tezos.giganode.io",
-		delphinet: "https://delphinet-tezos-giganode.io", // "https://delphinet.smartpy.io",
+		delphinet: "https://testnet-tezos.giganode.io", // "https://delphinet.smartpy.io",
 		carthagenet: "https://carthagenet.smartpy.io",
 	};
 	let expandAll = false;
