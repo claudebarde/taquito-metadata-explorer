@@ -118,10 +118,25 @@
 		if (url) {
 			return str.replace(
 				url[0],
-				`<a href="${url[0]}" target="_blank" rel="noreferrer noopener nofollower">${url[0]}</a>`
+				`<a href="${url[0]}" target="_blank" rel="noreferrer noopener nofollow">${url[0]}</a>`
 			);
 		} else {
-			return str;
+			// looks for ipfs hashes
+			const ipfsRegex = new RegExp(/ipfs:\/\/([a-zA-Z-0-9]{46})/, "g");
+			const ipfs = str.match(ipfsRegex);
+			if (ipfs) {
+				return str.replace(
+					ipfs[0],
+					`<a href="https://ipfs.io/ipfs/${ipfs[0].replace(
+						"ipfs://",
+						""
+					)}" target="_blank" rel="noreferrer noopener nofollow">${
+						ipfs[0]
+					}</a>`
+				);
+			} else {
+				return str;
+			}
 		}
 	};
 
