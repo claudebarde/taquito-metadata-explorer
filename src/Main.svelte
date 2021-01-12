@@ -144,6 +144,9 @@
 		let result = "";
 
 		for (let el in obj) {
+			if (el === "bytes") {
+				//console.log(obj[el]);
+			}
 			// if string
 			if (typeof obj[el] === "string") {
 				result += `<div class="metadata__details"><div><strong><em>${el}</em></strong>:</div><div>${matchURL(
@@ -181,6 +184,7 @@
 							code
 						)}</div></details>`;
 					} catch (error) {
+						console.log(el, obj[el]);
 						result += `<details><summary><strong><em>${el}</em></strong>:</summary><div>${parseObject(
 							obj[el]
 						)}</div></details>`;
@@ -501,7 +505,7 @@
 			alt="Taquito"
 			in:fly={{ duration: 1500, delay: 600, x: -1000 }} />
 	</div>
-	<h3>Placeholder for Jev's text</h3>
+	<h3>Explore TZIP-16 based Metadata associated with on chain contracts</h3>
 	<div class="networks-wrapper">
 		<div class="networks">
 			{network.slice(0, 1).toUpperCase() + network.slice(1)}&nbsp;
