@@ -206,11 +206,11 @@
     if (validateContractAddress(contractAddress) === 3) {
       try {
         const contract = await Tezos.contract.at(contractAddress, tzip16);
-        metadata = await contract.tzip16().getMetadata();
-        console.log(metadata);
         views = await contract.tzip16().metadataViews();
         console.log(views);
         console.log(await views.someJson().executeView());
+        metadata = await contract.tzip16().getMetadata();
+        console.log(metadata);
         contractLink = `https://taquito-metadata-explorer.netlify.app/#/${network}/${contractAddress}`;
       } catch (error) {
         console.log(error);
