@@ -174,7 +174,7 @@
                 name = "N/A";
               }
               return `<details><summary><strong><em>${name}</em></strong>:${
-                views.hasOwnProperty(name)
+                views && views.hasOwnProperty(name)
                   ? `<button class="execute-view-button" data-view="${view.name}">Execute</button>`
                   : ""
               }</summary><div>${parseObject(view)}</div></details>`;
@@ -274,23 +274,27 @@
   });
 
   afterUpdate(() => {
-    const buttons = document.getElementsByClassName("execute-view-button");
-    Array.from(buttons).forEach(element => {
-      element.addEventListener("click", async event => {
-        const dataset = {
-          ...(event.target as HTMLElement).dataset
-        };
-        if (
-          dataset &&
-          dataset.hasOwnProperty("view") &&
-          views.hasOwnProperty(dataset.view)
-        ) {
-          const payload = await views[dataset.view]().executeView();
-          modalPayload = { view: dataset.view, payload };
-          modalOpen = true;
-        }
-      });
-    });
+    if (views && Object.keys(views).length > 0) {
+      const buttons = document.getElementsByClassName("execute-view-button");
+      if (buttons && buttons.length > 0) {
+        Array.from(buttons).forEach(element => {
+          element.addEventListener("click", async event => {
+            const dataset = {
+              ...(event.target as HTMLElement).dataset
+            };
+            if (
+              dataset &&
+              dataset.hasOwnProperty("view") &&
+              views.hasOwnProperty(dataset.view)
+            ) {
+              const payload = await views[dataset.view]().executeView();
+              modalPayload = { view: dataset.view, payload };
+              modalOpen = true;
+            }
+          });
+        });
+      }
+    }
   });
 </script>
 
