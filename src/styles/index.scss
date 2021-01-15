@@ -93,6 +93,7 @@ a {
       display: flex;
       justify-content: flex-start;
       align-items: center;
+      position: relative;
     }
 
     summary::-webkit-details-marker {
@@ -125,6 +126,17 @@ a {
       }
     }
   }
+}
+
+.execute-view-button {
+  position: absolute;
+  right: 10px;
+  border-radius: 10px;
+  background-color: rgba(229, 231, 235, 1);
+  border: solid 1px rgba(156, 163, 175, 1);
+  cursor: pointer;
+  padding: 5px 10px;
+  outline: none;
 }
 
 /* ----------------------------------------------

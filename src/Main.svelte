@@ -1,11 +1,12 @@
 <script lang="ts">
-  import { onMount } from "svelte";
+  import { onMount, afterUpdate } from "svelte";
   import { fly } from "svelte/transition";
   import { TezosToolkit } from "@taquito/taquito";
   import { Tzip16Module, tzip16 } from "@taquito/tzip16";
   import { validateContractAddress } from "@taquito/utils";
   import { Parser, emitMicheline } from "@taquito/michel-codec";
   import { InMemorySigner } from "@taquito/signer";
+  import Modal from "./Modal.svelte";
 
   export let params;
 
@@ -19,6 +20,8 @@
   let errorMessage = "";
   let metadata = undefined;
   let views = undefined;
+  let modalPayload = { view: "", payload: "" };
+  let modalOpen = false;
   let network: Network = "delphinet";
   const examples: { network: Network; address: string; text: string }[] = [
     {
@@ -163,17 +166,18 @@
           result += `<details><summary><strong><em>${el}</em></strong>:</summary><div>${obj[
             el
           ]
-            .map((view, i) => {
-              let name: string | number;
+            .map(view => {
+              let name: string;
               if (view.name) {
                 name = view.name;
-                delete view.name;
               } else {
-                name = i;
+                name = "N/A";
               }
-              return `<details><summary><strong><em>${name}</em></strong>:</summary><div>${parseObject(
-                view
-              )}</div></details>`;
+              return `<details><summary><strong><em>${name}</em></strong>:${
+                views.hasOwnProperty(name)
+                  ? `<button class="execute-view-button" data-view="${view.name}">Execute</button>`
+                  : ""
+              }</summary><div>${parseObject(view)}</div></details>`;
             })
             .join("")}</div></details>`;
         } else {
@@ -206,11 +210,8 @@
     if (validateContractAddress(contractAddress) === 3) {
       try {
         const contract = await Tezos.contract.at(contractAddress, tzip16);
-        views = await contract.tzip16().metadataViews();
-        console.log(views);
-        console.log(await views.someJson().executeView());
         metadata = await contract.tzip16().getMetadata();
-        console.log(metadata);
+        views = await contract.tzip16().metadataViews();
         contractLink = `https://taquito-metadata-explorer.netlify.app/#/${network}/${contractAddress}`;
       } catch (error) {
         console.log(error);
@@ -270,6 +271,26 @@
       contractAddress = params.contract;
       loadMetadata();
     }
+  });
+
+  afterUpdate(() => {
+    const buttons = document.getElementsByClassName("execute-view-button");
+    Array.from(buttons).forEach(element => {
+      element.addEventListener("click", async event => {
+        const dataset = {
+          ...(event.target as HTMLElement).dataset
+        };
+        if (
+          dataset &&
+          dataset.hasOwnProperty("view") &&
+          views.hasOwnProperty(dataset.view)
+        ) {
+          const payload = await views[dataset.view]().executeView();
+          modalPayload = { view: dataset.view, payload };
+          modalOpen = true;
+        }
+      });
+    });
   });
 </script>
 
@@ -436,6 +457,15 @@
     </div>
   {/if}
 </main>
+{#if modalOpen}
+  <Modal
+    payload={modalPayload}
+    close={() => {
+      modalOpen = false;
+      modalPayload = { view: "", payload: "" };
+    }}
+  />
+{/if}
 
 <style lang="scss">
   $border-radius: 20px;
