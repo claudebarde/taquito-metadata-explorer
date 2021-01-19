@@ -20,7 +20,18 @@
   let errorMessage = "";
   let metadata = undefined;
   let views = undefined;
-  let modalPayload = { view: "", payload: "" };
+  let refreshViews = false;
+  let modalPayload: {
+    viewName: string;
+    payload: string;
+    param: boolean;
+    execute: any;
+  } = {
+    viewName: "",
+    payload: "",
+    param: false,
+    execute: null
+  };
   let modalOpen = false;
   let network: Network = "delphinet";
   const examples: { network: Network; address: string; text: string }[] = [
@@ -213,6 +224,7 @@
         views = await contract.tzip16().metadataViews();
         metadata = await contract.tzip16().getMetadata();
         contractLink = `https://taquito-metadata-explorer.netlify.app/#/${network}/${contractAddress}`;
+        refreshViews = true;
       } catch (error) {
         console.log(error);
         if (error.message) {
@@ -271,10 +283,11 @@
       contractAddress = params.contract;
       loadMetadata();
     }
+    refreshViews = true;
   });
 
   afterUpdate(() => {
-    if (views && Object.keys(views).length > 0) {
+    if (refreshViews && views && Object.keys(views).length > 0) {
       const buttons = document.getElementsByClassName("execute-view-button");
       if (buttons && buttons.length > 0) {
         Array.from(buttons).forEach(element => {
@@ -287,189 +300,49 @@
               dataset.hasOwnProperty("view") &&
               views.hasOwnProperty(dataset.view)
             ) {
-              const payload = await views[dataset.view]().executeView();
-              modalPayload = { view: dataset.view, payload };
-              modalOpen = true;
+              // checks if the view takes a parameter
+              const viewImplementations = metadata.metadata.views.filter(
+                v => v.name === dataset.view
+              )[0].implementations;
+              console.log(viewImplementations);
+              if (
+                viewImplementations.length > 0 &&
+                viewImplementations[0].hasOwnProperty("michelsonStorageView") &&
+                viewImplementations[0].michelsonStorageView.hasOwnProperty(
+                  "parameter"
+                )
+              ) {
+                const param =
+                  viewImplementations[0].michelsonStorageView.parameter;
+                if (param && param.hasOwnProperty("prim")) {
+                  const payload = param.prim;
+                  modalPayload = {
+                    viewName: dataset.view,
+                    payload,
+                    param: true,
+                    execute: views
+                  };
+                  modalOpen = true;
+                }
+              } else {
+                // the view takes no parameter
+                const payload = await views[dataset.view]().executeView();
+                modalPayload = {
+                  viewName: dataset.view,
+                  payload,
+                  param: false,
+                  execute: null
+                };
+                modalOpen = true;
+              }
             }
           });
         });
       }
+      refreshViews = false;
     }
   });
 </script>
-
-<main>
-  <div class="title">
-    <img
-      src="images/taquito.png"
-      alt="Taquito"
-      in:fly={{ duration: 1500, delay: 600, x: 1000 }}
-    />
-    <h1>Taquito Metadata Explorer</h1>
-    <img
-      src="images/taquito.png"
-      alt="Taquito"
-      in:fly={{ duration: 1500, delay: 600, x: -1000 }}
-    />
-  </div>
-  <h3>Explore TZIP-16 based Metadata associated with on chain contracts</h3>
-  <div class="networks-wrapper">
-    <div class="networks">
-      {network.slice(0, 1).toUpperCase() + network.slice(1)}&nbsp;
-      <span id="networks-arrowhead-down">&#x25BC;</span>
-    </div>
-    <div class="networks-list">
-      <p
-        on:click={() => {
-          Tezos.setRpcProvider(rpcProviders.mainnet);
-          network = "mainnet";
-          expandAll = false;
-        }}
-      >Mainnet</p>
-      <p
-        on:click={() => {
-          Tezos.setRpcProvider(rpcProviders.delphinet);
-          network = "delphinet";
-          expandAll = false;
-        }}
-      >Delphinet</p>
-      <p
-        on:click={() => {
-          Tezos.setRpcProvider(rpcProviders.carthagenet);
-          network = "carthagenet";
-          expandAll = false;
-        }}
-      >Carthagenet</p>
-    </div>
-  </div>
-  <div class="form">
-    <div class="examples-wrapper">
-      <div class="examples">
-        Examples &nbsp;
-        <span id="examples-arrowhead-down">&#x25BC;</span>
-      </div>
-      <div class="examples-list">
-        {#each examples as example, index}
-          <p
-            on:click={() => {
-              contractAddress = example.address;
-              network = example.network;
-              Tezos.setRpcProvider(rpcProviders[example.network]);
-              loadMetadata();
-            }}
-            style={index === examples.length - 1
-              ? "border-bottom-left-radius: 20px;border-bottom-right-radius: 20px;"
-              : ""}
-          >
-            {example.text}
-          </p>
-        {/each}
-      </div>
-    </div>
-    <input
-      type="text"
-      bind:value={contractAddress}
-      placeholder="Enter the address of the contract here"
-    />
-    <button on:click={loadMetadata}>
-      {#if loadingMetadata}
-        <img src="images/taquito.png" alt="Taquito" class="taquito-button" />
-      {:else}&nbsp;Load&nbsp;{/if}
-    </button>
-  </div>
-  {#if contractAddressError}
-    <p style="color:red">Invalid Contract Address</p>
-  {/if}
-  {#if errorMessage}
-    <p style="color:red">{errorMessage}</p>
-  {/if}
-  <br />
-  {#if metadata}
-    <div class="links">
-      <div>
-        <a
-          href={`https://better-call.dev/${network.toLowerCase()}/${contractAddress}/storage`}
-          target="_blank"
-          rel="noopener noreferrer nofollower">See contract storage</a
-        >
-      </div>
-      <div>
-        <span on:click={expandOrClose}
-          >{expandAll ? "Collapse all" : "Expand all"}</span
-        >
-      </div>
-      <div>
-        <span on:click={copyToClipboard}>Share a link to this contract</span>
-        <input type="text" id="contract-link" value={contractLink} />
-      </div>
-    </div>
-    <div class="metadata-display">
-      {#each Object.keys(metadata) as property}
-        <div class="metadata">
-          {#if property === "metadata"}
-            <details>
-              <summary>
-                <strong>{property.toUpperCase()}</strong>:
-              </summary>
-              <div>
-                {@html parseObject(metadata.metadata)}
-              </div>
-            </details>
-          {:else if property === "uri"}
-            <details>
-              <summary>
-                <strong>{property.toUpperCase()}</strong>:
-              </summary>
-              <div class="metadata__details">
-                {@html matchURL(metadata[property])}
-              </div>
-            </details>
-          {:else if property === "integrityCheckResult"}
-            <details>
-              <summary>
-                <strong>{property.toUpperCase()}</strong>
-                {#if metadata[property]}
-                  <span class="integrety-test-result success">
-                    &#10004;&#65039;
-                  </span>:
-                {:else if metadata[property] === undefined}
-                  <span
-                    class="integrety-test-result success"
-                    style="font-size:0.6rem;font-weight:bold;margin-left:10px">
-                    N/A
-                  </span>:
-                {:else}
-                  <span class="integrety-test-result success"> &#10007; </span>:
-                {/if}
-              </summary>
-              <div class="metadata__details">
-                {metadata[property]}
-              </div>
-            </details>
-          {:else}
-            <details>
-              <summary>
-                <strong>{property.toUpperCase()}</strong>:
-              </summary>
-              <div class="metadata__details">
-                {metadata[property]}
-              </div>
-            </details>
-          {/if}
-        </div>
-      {/each}
-    </div>
-  {/if}
-</main>
-{#if modalOpen}
-  <Modal
-    payload={modalPayload}
-    close={() => {
-      modalOpen = false;
-      modalPayload = { view: "", payload: "" };
-    }}
-  />
-{/if}
 
 <style lang="scss">
   $border-radius: 20px;
@@ -694,3 +567,176 @@
     font-size: 1rem;
   }
 </style>
+
+<main>
+  <div class="title">
+    <img
+      src="images/taquito.png"
+      alt="Taquito"
+      in:fly={{ duration: 1500, delay: 600, x: 1000 }}
+    />
+    <h1>Taquito Metadata Explorer</h1>
+    <img
+      src="images/taquito.png"
+      alt="Taquito"
+      in:fly={{ duration: 1500, delay: 600, x: -1000 }}
+    />
+  </div>
+  <h3>Explore TZIP-16 based Metadata associated with on chain contracts</h3>
+  <div class="networks-wrapper">
+    <div class="networks">
+      {network.slice(0, 1).toUpperCase() + network.slice(1)}&nbsp;
+      <span id="networks-arrowhead-down">&#x25BC;</span>
+    </div>
+    <div class="networks-list">
+      <p
+        on:click={() => {
+          Tezos.setRpcProvider(rpcProviders.mainnet);
+          network = "mainnet";
+          expandAll = false;
+        }}
+      >Mainnet</p>
+      <p
+        on:click={() => {
+          Tezos.setRpcProvider(rpcProviders.delphinet);
+          network = "delphinet";
+          expandAll = false;
+        }}
+      >Delphinet</p>
+      <p
+        on:click={() => {
+          Tezos.setRpcProvider(rpcProviders.carthagenet);
+          network = "carthagenet";
+          expandAll = false;
+        }}
+      >Carthagenet</p>
+    </div>
+  </div>
+  <div class="form">
+    <div class="examples-wrapper">
+      <div class="examples">
+        Examples &nbsp;
+        <span id="examples-arrowhead-down">&#x25BC;</span>
+      </div>
+      <div class="examples-list">
+        {#each examples as example, index}
+          <p
+            on:click={() => {
+              contractAddress = example.address;
+              network = example.network;
+              Tezos.setRpcProvider(rpcProviders[example.network]);
+              loadMetadata();
+            }}
+            style={index === examples.length - 1
+              ? "border-bottom-left-radius: 20px;border-bottom-right-radius: 20px;"
+              : ""}
+          >
+            {example.text}
+          </p>
+        {/each}
+      </div>
+    </div>
+    <input
+      type="text"
+      bind:value={contractAddress}
+      placeholder="Enter the address of the contract here"
+    />
+    <button on:click={loadMetadata}>
+      {#if loadingMetadata}
+        <img src="images/taquito.png" alt="Taquito" class="taquito-button" />
+      {:else}&nbsp;Load&nbsp;{/if}
+    </button>
+  </div>
+  {#if contractAddressError}
+    <p style="color:red">Invalid Contract Address</p>
+  {/if}
+  {#if errorMessage}
+    <p style="color:red">{errorMessage}</p>
+  {/if}
+  <br />
+  {#if metadata}
+    <div class="links">
+      <div>
+        <a
+          href={`https://better-call.dev/${network.toLowerCase()}/${contractAddress}/storage`}
+          target="_blank"
+          rel="noopener noreferrer nofollower">See contract storage</a
+        >
+      </div>
+      <div>
+        <span on:click={expandOrClose}
+          >{expandAll ? "Collapse all" : "Expand all"}</span
+        >
+      </div>
+      <div>
+        <span on:click={copyToClipboard}>Share a link to this contract</span>
+        <input type="text" id="contract-link" value={contractLink} />
+      </div>
+    </div>
+    <div class="metadata-display">
+      {#each Object.keys(metadata) as property}
+        <div class="metadata">
+          {#if property === "metadata"}
+            <details>
+              <summary>
+                <strong>{property.toUpperCase()}</strong>:
+              </summary>
+              <div>
+                {@html parseObject(metadata.metadata)}
+              </div>
+            </details>
+          {:else if property === "uri"}
+            <details>
+              <summary>
+                <strong>{property.toUpperCase()}</strong>:
+              </summary>
+              <div class="metadata__details">
+                {@html matchURL(metadata[property])}
+              </div>
+            </details>
+          {:else if property === "integrityCheckResult"}
+            <details>
+              <summary>
+                <strong>{property.toUpperCase()}</strong>
+                {#if metadata[property]}
+                  <span class="integrety-test-result success">
+                    &#10004;&#65039;
+                  </span>:
+                {:else if metadata[property] === undefined}
+                  <span
+                    class="integrety-test-result success"
+                    style="font-size:0.6rem;font-weight:bold;margin-left:10px">
+                    N/A
+                  </span>:
+                {:else}
+                  <span class="integrety-test-result success"> &#10007; </span>:
+                {/if}
+              </summary>
+              <div class="metadata__details">
+                {metadata[property]}
+              </div>
+            </details>
+          {:else}
+            <details>
+              <summary>
+                <strong>{property.toUpperCase()}</strong>:
+              </summary>
+              <div class="metadata__details">
+                {metadata[property]}
+              </div>
+            </details>
+          {/if}
+        </div>
+      {/each}
+    </div>
+  {/if}
+</main>
+{#if modalOpen}
+  <Modal
+    payload={modalPayload}
+    close={() => {
+      modalOpen = false;
+      modalPayload = { view: "", payload: "" };
+    }}
+  />
+{/if}
