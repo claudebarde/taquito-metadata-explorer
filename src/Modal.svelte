@@ -4,8 +4,68 @@
   export let close: (p?: any) => any | undefined; //should be a function
   export let payload;
 
-  let viewParam = "";
   let resultRunView = "";
+
+  const parseRequiredParams = (
+    param: any
+  ): { name: string; type: string }[] => {
+    let inputTypes: { name: string; type: string }[] = [];
+    if (
+      param.prim &&
+      [
+        "nat",
+        "int",
+        "string",
+        "address",
+        "bytes",
+        "mutez",
+        "bool",
+        "key",
+        "key_hash",
+        "signature",
+        "timestamp"
+      ].includes(param.prim)
+    ) {
+      return [
+        ...inputTypes,
+        {
+          name:
+            param.annots &&
+            Array.isArray(param.annots) &&
+            param.annots.length === 1
+              ? param.annots[0]
+              : "Parameter",
+          type: param.prim
+        }
+      ];
+    } else if (param.prim && param.prim === "pair") {
+      return [
+        ...inputTypes,
+        ...parseRequiredParams(param.args[0]),
+        ...parseRequiredParams(param.args[1])
+      ];
+    } else {
+      return inputTypes;
+    }
+  };
+
+  const executeView = async () => {
+    // retrieves the different inputs
+    const inputs = Array.from(
+      document.getElementById("view-inputs").children
+    ).map(el => (el as HTMLInputElement).value);
+    if (inputs && inputs.length > 0) {
+      // runs the view
+      const result = await payload.execute[payload.viewName]().executeView(
+        ...inputs
+      );
+      if (result) {
+        resultRunView = result;
+      } else {
+        resultRunView = "error";
+      }
+    }
+  };
 </script>
 
 <style lang="scss">
@@ -122,6 +182,10 @@
     }
   }*/
   }
+
+  input[type="text"] {
+    margin: 5px;
+  }
 </style>
 
 <div class="modal-wrapper">
@@ -135,12 +199,13 @@
             Enter a parameter to run the <br /><em>{payload.viewName}</em> view:
           </div>
           <br />
-          <div>
-            <input
-              type="text"
-              placeholder={`Parameter of type ${payload.payload}`}
-              bind:value={viewParam}
-            />
+          <div id="view-inputs">
+            {#each parseRequiredParams(payload.param) as el}
+              <input
+                type="text"
+                placeholder={`${el.name} of type ${el.type}`}
+              />
+            {/each}
           </div>
         {:else}
           <div>Result for <em>{payload.viewName}</em> view:</div>
@@ -160,17 +225,7 @@
     </div>
     <div class="modal__footer">
       {#if payload.param && !resultRunView}
-        <button
-          class="button green"
-          on:click={async () => {
-            const result = await payload.execute[
-              payload.viewName
-            ]().executeView(viewParam);
-            if (result) {
-              resultRunView = result;
-            }
-          }}>Execute</button
-        >
+        <button class="button green" on:click={executeView}>Execute</button>
       {/if}
       <button class="button blue" on:click={close}>Close</button>
     </div>

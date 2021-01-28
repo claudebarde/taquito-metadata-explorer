@@ -43,8 +43,9 @@
 	"dependencies": {
 		"@taquito/michel-codec": "^7.1.0-beta.0",
 		"@taquito/signer": "^7.1.0-beta.0",
-		"@taquito/taquito": "^7.2.0-beta.2",
-		"@taquito/tzip16": "^7.2.0-beta.2",
+		"@taquito/taquito": "^8.0.0-beta.3",
+		"@taquito/tzip12": "^8.0.0-beta.3",
+		"@taquito/tzip16": "^8.0.0-beta.3",
 		"@taquito/utils": "^7.1.0-beta.0",
 		"serve": "^11.3.2",
 		"svelte-spa-router": "^3.1.0"

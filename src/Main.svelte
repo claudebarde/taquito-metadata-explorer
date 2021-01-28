@@ -2,6 +2,7 @@
   import { onMount, afterUpdate } from "svelte";
   import { fly } from "svelte/transition";
   import { TezosToolkit } from "@taquito/taquito";
+  import { Tzip12Module, tzip12 } from "@taquito/tzip12";
   import { Tzip16Module, tzip16 } from "@taquito/tzip16";
   import { validateContractAddress } from "@taquito/utils";
   import { Parser, emitMicheline } from "@taquito/michel-codec";
@@ -24,7 +25,7 @@
   let modalPayload: {
     viewName: string;
     payload: string;
-    param: boolean;
+    param: any; // undefined or Michelson JSON
     execute: any;
   } = {
     viewName: "",
@@ -114,6 +115,16 @@
       network: "delphinet",
       address: "KT1BAQ3nEsLrEeZdkij8KiekaWUVQERNF1Hi",
       text: "Tezos Storage - metadata in another contract"
+    },
+    {
+      network: "delphinet",
+      address: "KT1DmnMEK6NdStW9JLrNyRyd64DRK7FynDoq",
+      text: "Token Metadata in views"
+    },
+    {
+      network: "delphinet",
+      address: "KT19txYWjVo4yLvcGnnyiGc35CuX12Pc4krn",
+      text: "Token Metadata in storage"
     }
   ];
   const rpcProviders = {
@@ -223,6 +234,44 @@
         const contract = await Tezos.contract.at(contractAddress, tzip16);
         views = await contract.tzip16().metadataViews();
         metadata = await contract.tzip16().getMetadata();
+        const storage: any = await contract.storage();
+        if (views && views.hasOwnProperty("token_metadata")) {
+          console.log("token metadata are in views");
+        } else if (storage.hasOwnProperty("token_metadata")) {
+          // gets token ids from indexer
+          const bigmapID = storage.token_metadata.toString();
+          const data = await fetch(
+            `https://api.better-call.dev/v1/bigmap/delphinet/${bigmapID}/keys`
+          );
+          if (data) {
+            const json = await data.json();
+            const tokenIDs: number[] = json.map(el => {
+              if (!isNaN(el.data.key.value)) {
+                return +el.data.key.value;
+              } else {
+                throw "Invalid token ID";
+              }
+            });
+            const tzip12Contract = await Tezos.contract.at(
+              contractAddress,
+              tzip12
+            );
+            const promises = [];
+            tokenIDs.forEach(tokenID => {
+              promises.push(tzip12Contract.tzip12().getTokenMetadata(tokenID));
+            });
+            const tokens = await Promise.all(promises);
+            if (Array.isArray(tokens) && tokens.length > 0) {
+              metadata.tokenMetadata = [...tokens];
+            } else {
+              metadata.tokenMetadata = undefined;
+            }
+          } else {
+            metadata.tokenMetadata = undefined;
+          }
+        } else {
+          metadata.tokenMetadata = undefined;
+        }
         contractLink = `https://taquito-metadata-explorer.netlify.app/#/${network}/${contractAddress}`;
         refreshViews = true;
       } catch (error) {
@@ -263,6 +312,7 @@
   onMount(() => {
     Tezos = new TezosToolkit("https://testnet-tezos.giganode.io");
     Tezos.addExtension(new Tzip16Module());
+    Tezos.addExtension(new Tzip12Module());
     parser = new Parser();
 
     const key =
@@ -304,7 +354,6 @@
               const viewImplementations = metadata.metadata.views.filter(
                 v => v.name === dataset.view
               )[0].implementations;
-              console.log(viewImplementations);
               if (
                 viewImplementations.length > 0 &&
                 viewImplementations[0].hasOwnProperty("michelsonStorageView") &&
@@ -319,7 +368,7 @@
                   modalPayload = {
                     viewName: dataset.view,
                     payload,
-                    param: true,
+                    param,
                     execute: views
                   };
                   modalOpen = true;
@@ -330,7 +379,7 @@
                 modalPayload = {
                   viewName: dataset.view,
                   payload,
-                  param: false,
+                  param: undefined,
                   execute: null
                 };
                 modalOpen = true;
@@ -449,6 +498,8 @@
         width: 99%;
         transition: 0.3s;
         z-index: 100;
+        max-height: 400px;
+        overflow: auto;
 
         &:hover {
           display: block;
@@ -595,21 +646,27 @@
           network = "mainnet";
           expandAll = false;
         }}
-      >Mainnet</p>
+      >
+        Mainnet
+      </p>
       <p
         on:click={() => {
           Tezos.setRpcProvider(rpcProviders.delphinet);
           network = "delphinet";
           expandAll = false;
         }}
-      >Delphinet</p>
+      >
+        Delphinet
+      </p>
       <p
         on:click={() => {
           Tezos.setRpcProvider(rpcProviders.carthagenet);
           network = "carthagenet";
           expandAll = false;
         }}
-      >Carthagenet</p>
+      >
+        Carthagenet
+      </p>
     </div>
   </div>
   <div class="form">
@@ -674,6 +731,7 @@
       </div>
     </div>
     <div class="metadata-display">
+      {console.log(metadata)}
       {#each Object.keys(metadata) as property}
         <div class="metadata">
           {#if property === "metadata"}
@@ -683,6 +741,22 @@
               </summary>
               <div>
                 {@html parseObject(metadata.metadata)}
+              </div>
+            </details>
+          {:else if property === "tokenMetadata" && Array.isArray(metadata.tokenMetadata) && metadata.tokenMetadata.length > 0}
+            <details>
+              <summary>
+                <strong>TOKENS METADATA</strong>:
+              </summary>
+              <div>
+                {#each metadata.tokenMetadata as tkmt}
+                  <details>
+                    <summary><strong>{tkmt["name"]}:</strong></summary>
+                    {#each Object.keys(tkmt) as prop}
+                      <div>{prop}: {tkmt[prop]}</div>
+                    {/each}
+                  </details>
+                {/each}
               </div>
             </details>
           {:else if property === "uri"}
@@ -705,7 +779,8 @@
                 {:else if metadata[property] === undefined}
                   <span
                     class="integrety-test-result success"
-                    style="font-size:0.6rem;font-weight:bold;margin-left:10px">
+                    style="font-size:0.6rem;font-weight:bold;margin-left:10px"
+                  >
                     N/A
                   </span>:
                 {:else}
@@ -736,7 +811,12 @@
     payload={modalPayload}
     close={() => {
       modalOpen = false;
-      modalPayload = { view: "", payload: "" };
+      modalPayload = {
+        viewName: "",
+        payload: "",
+        param: undefined,
+        execute: undefined
+      };
     }}
   />
 {/if}
