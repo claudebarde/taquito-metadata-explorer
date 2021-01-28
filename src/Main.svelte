@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount, afterUpdate } from "svelte";
   import { fly } from "svelte/transition";
-  import { TezosToolkit } from "@taquito/taquito";
+  import { TezosToolkit, compose } from "@taquito/taquito";
   import { Tzip12Module, tzip12 } from "@taquito/tzip12";
   import { Tzip16Module, tzip16 } from "@taquito/tzip16";
   import { validateContractAddress } from "@taquito/utils";
@@ -231,12 +231,15 @@
 
     if (validateContractAddress(contractAddress) === 3) {
       try {
-        const contract = await Tezos.contract.at(contractAddress, tzip16);
+        const contract = await Tezos.contract.at(
+          contractAddress,
+          compose(tzip16, tzip12)
+        );
         views = await contract.tzip16().metadataViews();
         metadata = await contract.tzip16().getMetadata();
         const storage: any = await contract.storage();
         if (views && views.hasOwnProperty("token_metadata")) {
-          console.log("token metadata are in views");
+          console.log("token metadata are in views:", views.token_metadata);
         } else if (storage.hasOwnProperty("token_metadata")) {
           // gets token ids from indexer
           const bigmapID = storage.token_metadata.toString();
@@ -252,13 +255,9 @@
                 throw "Invalid token ID";
               }
             });
-            const tzip12Contract = await Tezos.contract.at(
-              contractAddress,
-              tzip12
-            );
             const promises = [];
             tokenIDs.forEach(tokenID => {
-              promises.push(tzip12Contract.tzip12().getTokenMetadata(tokenID));
+              promises.push(contract.tzip12().getTokenMetadata(tokenID));
             });
             const tokens = await Promise.all(promises);
             if (Array.isArray(tokens) && tokens.length > 0) {
@@ -731,7 +730,6 @@
       </div>
     </div>
     <div class="metadata-display">
-      {console.log(metadata)}
       {#each Object.keys(metadata) as property}
         <div class="metadata">
           {#if property === "metadata"}
