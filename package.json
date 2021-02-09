@@ -41,11 +41,11 @@
 		"webpack-dev-server": "^3.11.0"
 	},
 	"dependencies": {
-		"@taquito/michel-codec": "^7.1.0-beta.0",
+		"@taquito/michel-codec": "^8.0.0-beta.7",
 		"@taquito/signer": "^7.1.0-beta.0",
-		"@taquito/taquito": "^8.0.0-beta.3",
-		"@taquito/tzip12": "^8.0.0-beta.3",
-		"@taquito/tzip16": "^8.0.0-beta.3",
+		"@taquito/taquito": "^8.0.0-beta.7",
+		"@taquito/tzip12": "^8.0.0-beta.7",
+		"@taquito/tzip16": "^8.0.0-beta.7",
 		"@taquito/utils": "^7.1.0-beta.0",
 		"serve": "^11.3.2",
 		"svelte-spa-router": "^3.1.0"

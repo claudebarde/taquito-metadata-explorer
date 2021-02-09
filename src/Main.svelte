@@ -116,9 +116,14 @@
       address: "KT1BAQ3nEsLrEeZdkij8KiekaWUVQERNF1Hi",
       text: "Tezos Storage - metadata in another contract"
     },
-    {
+    /*{
       network: "delphinet",
       address: "KT1DmnMEK6NdStW9JLrNyRyd64DRK7FynDoq",
+      text: "Token Metadata in views"
+    }*/
+    {
+      network: "delphinet",
+      address: "KT1Nu6FHWrpWF3wAkKkWs1Tb1MMTgNesFrUn",
       text: "Token Metadata in views"
     },
     {
@@ -238,8 +243,9 @@
         views = await contract.tzip16().metadataViews();
         metadata = await contract.tzip16().getMetadata();
         const storage: any = await contract.storage();
-        if (views && views.hasOwnProperty("token_metadata")) {
-          console.log("token metadata are in views:", views.token_metadata);
+        if (views && views.hasOwnProperty("all_tokens")) {
+          console.log("token metadata are in views:");
+          console.log(await views.all_tokens().executeView());
         } else if (storage.hasOwnProperty("token_metadata")) {
           // gets token ids from indexer
           const bigmapID = storage.token_metadata.toString();
