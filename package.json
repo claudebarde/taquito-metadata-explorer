@@ -5,7 +5,7 @@
     "dev": "webpack-dev-server --content-base public --hot",
     "start": "serve public -l 8080",
     "validate": "svelte-check",
-    "update-taquito": "ncu -u --target newest --filter '/^@taquito.*$/' && npm i && git add . && git commit -m \"Updated Taquito version\" && git push"
+    "update-taquito": "ncu -u --target newest --filter '/^@taquito.*$/' && npm i"
   },
   "devDependencies": {
     "@babel/core": "^7.11.5",
@@ -42,12 +42,12 @@
     "webpack-dev-server": "^3.11.0"
   },
   "dependencies": {
-    "@taquito/michel-codec": "^8.0.1-beta.1",
-    "@taquito/signer": "^8.0.1-beta.1",
-    "@taquito/taquito": "^8.0.1-beta.1",
-    "@taquito/tzip12": "^8.0.1-beta.1",
-    "@taquito/tzip16": "^8.0.1-beta.1",
-    "@taquito/utils": "^8.0.1-beta.1",
+    "@taquito/michel-codec": "^8.0.4-beta-RC.0",
+    "@taquito/signer": "^8.0.4-beta-RC.0",
+    "@taquito/taquito": "^8.0.4-beta-RC.0",
+    "@taquito/tzip12": "^8.0.4-beta-RC.0",
+    "@taquito/tzip16": "^8.0.4-beta-RC.0",
+    "@taquito/utils": "^8.0.4-beta-RC.0",
     "serve": "^11.3.2",
     "svelte-spa-router": "^3.1.0"
   },

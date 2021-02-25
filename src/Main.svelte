@@ -11,7 +11,7 @@
 
   export let params;
 
-  type Network = "mainnet" | "carthagenet" | "delphinet" | undefined;
+  type Network = "mainnet" | "carthagenet" | "delphinet" | "edonet" | undefined;
 
   let Tezos: TezosToolkit;
   let parser: Parser;
@@ -34,6 +34,7 @@
     execute: null
   };
   let modalOpen = false;
+  const tokenMetadataRegex = /\"token_metadata\":\"([0-9]+)\"/;
   let network: Network = "delphinet";
   const examples: { network: Network; address: string; text: string }[] = [
     {
@@ -134,7 +135,8 @@
   ];
   const rpcProviders = {
     mainnet: "https://mainnet-tezos.giganode.io",
-    delphinet: "https://testnet-tezos.giganode.io", // "https://delphinet.smartpy.io",
+    edonet: "https://api.tez.ie/rpc/edonet",
+    delphinet: "https://api.tez.ie/rpc/delphinet", // "https://delphinet.smartpy.io",
     carthagenet: "https://carthagenet.smartpy.io"
   };
   let expandAll = false;
@@ -242,37 +244,53 @@
         );
         views = await contract.tzip16().metadataViews();
         metadata = await contract.tzip16().getMetadata();
+        console.log("metadata:", metadata);
         const storage: any = await contract.storage();
         if (views && views.hasOwnProperty("all_tokens")) {
           console.log("token metadata are in views:");
-          console.log(await views.all_tokens().executeView());
-        } else if (storage.hasOwnProperty("token_metadata")) {
-          // gets token ids from indexer
-          const bigmapID = storage.token_metadata.toString();
-          const data = await fetch(
-            `https://api.better-call.dev/v1/bigmap/delphinet/${bigmapID}/keys`
-          );
-          if (data) {
-            const json = await data.json();
-            const tokenIDs: number[] = json.map(el => {
-              if (!isNaN(el.data.key.value)) {
-                return +el.data.key.value;
+          const rawTokenIDs = await views.all_tokens().executeView();
+          const tokenIDs = rawTokenIDs.map(tkID => tkID.toNumber());
+          const promises = [];
+          tokenIDs.forEach(tokenID => {
+            promises.push(contract.tzip12().getTokenMetadata(tokenID));
+          });
+          const tokens = await Promise.all(promises);
+          if (Array.isArray(tokens) && tokens.length > 0) {
+            metadata.tokenMetadata = [...tokens];
+          } else {
+            metadata.tokenMetadata = undefined;
+          }
+        } else if (tokenMetadataRegex.test(JSON.stringify(storage))) {
+          console.log("token metadata are in storage");
+          const match = JSON.stringify(storage).match(tokenMetadataRegex);
+          if (match) {
+            // gets token ids from indexer
+            const bigmapID = match[1].toString();
+            const data = await fetch(
+              `https://api.better-call.dev/v1/bigmap/${network}/${bigmapID}/keys`
+            );
+            if (data) {
+              const json = await data.json();
+              const tokenIDs: number[] = json.map(el => {
+                if (!isNaN(el.data.key.value)) {
+                  return +el.data.key.value;
+                } else {
+                  throw "Invalid token ID";
+                }
+              });
+              const promises = [];
+              tokenIDs.forEach(tokenID => {
+                promises.push(contract.tzip12().getTokenMetadata(tokenID));
+              });
+              const tokens = await Promise.all(promises);
+              if (Array.isArray(tokens) && tokens.length > 0) {
+                metadata.tokenMetadata = [...tokens];
               } else {
-                throw "Invalid token ID";
+                metadata.tokenMetadata = undefined;
               }
-            });
-            const promises = [];
-            tokenIDs.forEach(tokenID => {
-              promises.push(contract.tzip12().getTokenMetadata(tokenID));
-            });
-            const tokens = await Promise.all(promises);
-            if (Array.isArray(tokens) && tokens.length > 0) {
-              metadata.tokenMetadata = [...tokens];
             } else {
               metadata.tokenMetadata = undefined;
             }
-          } else {
-            metadata.tokenMetadata = undefined;
           }
         } else {
           metadata.tokenMetadata = undefined;
@@ -315,7 +333,7 @@
   };
 
   onMount(() => {
-    Tezos = new TezosToolkit("https://testnet-tezos.giganode.io");
+    Tezos = new TezosToolkit(rpcProviders[network]);
     Tezos.addExtension(new Tzip16Module());
     Tezos.addExtension(new Tzip12Module());
     parser = new Parser();
@@ -328,7 +346,7 @@
     if (
       params.network &&
       params.contract &&
-      ["mainnet", "carthagenet", "delphinet"].includes(
+      ["mainnet", "carthagenet", "delphinet", "edonet"].includes(
         params.network.toLowerCase()
       ) &&
       validateContractAddress(params.contract) === 3
@@ -622,6 +640,12 @@
     margin: 0px 5px;
     font-size: 1rem;
   }
+
+  .error-message {
+    color: red;
+    width: 70%;
+    word-break: break-word;
+  }
 </style>
 
 <main>
@@ -653,6 +677,15 @@
         }}
       >
         Mainnet
+      </p>
+      <p
+        on:click={() => {
+          Tezos.setRpcProvider(rpcProviders.edonet);
+          network = "edonet";
+          expandAll = false;
+        }}
+      >
+        Edonet
       </p>
       <p
         on:click={() => {
@@ -710,10 +743,10 @@
     </button>
   </div>
   {#if contractAddressError}
-    <p style="color:red">Invalid Contract Address</p>
+    <p class="error-message">Invalid Contract Address</p>
   {/if}
   {#if errorMessage}
-    <p style="color:red">{errorMessage}</p>
+    <p class="error-message">{errorMessage}</p>
   {/if}
   <br />
   {#if metadata}
