@@ -129,7 +129,7 @@
     },
     {
       network: "delphinet",
-      address: "KT19txYWjVo4yLvcGnnyiGc35CuX12Pc4krn",
+      address: "KT1NiajZ91LJwyJ5mnoRioXPqF9b4qM8st56",
       text: "Token Metadata in storage"
     }
   ];
