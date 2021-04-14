@@ -11,7 +11,13 @@
 
   export let params;
 
-  type Network = "mainnet" | "carthagenet" | "delphinet" | "edonet" | undefined;
+  type Network =
+    | "mainnet"
+    | "carthagenet"
+    | "delphinet"
+    | "edonet"
+    | "florencenet"
+    | undefined;
 
   let Tezos: TezosToolkit;
   let parser: Parser;
@@ -35,7 +41,7 @@
   };
   let modalOpen = false;
   const tokenMetadataRegex = /\"token_metadata\":\"([0-9]+)\"/;
-  let network: Network = "delphinet";
+  let network: Network = "florencenet";
   const examples: { network: Network; address: string; text: string }[] = [
     {
       network: "delphinet",
@@ -135,6 +141,7 @@
   ];
   const rpcProviders = {
     mainnet: "https://mainnet-tezos.giganode.io",
+    florencenet: "https://api.tez.ie/rpc/florencenet",
     edonet: "https://api.tez.ie/rpc/edonet",
     delphinet: "https://api.tez.ie/rpc/delphinet", // "https://delphinet.smartpy.io",
     carthagenet: "https://carthagenet.smartpy.io"
@@ -669,42 +676,17 @@
       <span id="networks-arrowhead-down">&#x25BC;</span>
     </div>
     <div class="networks-list">
-      <p
-        on:click={() => {
-          Tezos.setRpcProvider(rpcProviders.mainnet);
-          network = "mainnet";
-          expandAll = false;
-        }}
-      >
-        Mainnet
-      </p>
-      <p
-        on:click={() => {
-          Tezos.setRpcProvider(rpcProviders.edonet);
-          network = "edonet";
-          expandAll = false;
-        }}
-      >
-        Edonet
-      </p>
-      <p
-        on:click={() => {
-          Tezos.setRpcProvider(rpcProviders.delphinet);
-          network = "delphinet";
-          expandAll = false;
-        }}
-      >
-        Delphinet
-      </p>
-      <p
-        on:click={() => {
-          Tezos.setRpcProvider(rpcProviders.carthagenet);
-          network = "carthagenet";
-          expandAll = false;
-        }}
-      >
-        Carthagenet
-      </p>
+      {#each Object.keys(rpcProviders) as networkName}
+        <p
+          on:click={() => {
+            Tezos.setRpcProvider(rpcProviders[networkName]);
+            network = networkName;
+            expandAll = false;
+          }}
+        >
+          {networkName[0].toUpperCase() + networkName.slice(1)}
+        </p>
+      {/each}
     </div>
   </div>
   <div class="form">
