@@ -42,12 +42,12 @@
     "webpack-dev-server": "^3.11.0"
   },
   "dependencies": {
-    "@taquito/michel-codec": "^8.1.1",
-    "@taquito/signer": "^8.1.1",
-    "@taquito/taquito": "^8.1.1",
-    "@taquito/tzip12": "^8.1.1",
-    "@taquito/tzip16": "^8.1.1",
-    "@taquito/utils": "^8.1.1",
+    "@taquito/michel-codec": "^9.0.0",
+    "@taquito/signer": "^9.0.0",
+    "@taquito/taquito": "^9.0.0",
+    "@taquito/tzip12": "^9.0.0",
+    "@taquito/tzip16": "^9.0.0",
+    "@taquito/utils": "^9.0.0",
     "serve": "^11.3.2",
     "svelte-spa-router": "^3.1.0"
   },
