@@ -13,8 +13,6 @@
 
   type Network =
     | "mainnet"
-    | "carthagenet"
-    | "delphinet"
     | "edonet"
     | "florencenet"
     | undefined;
@@ -44,98 +42,58 @@
   let network: Network = "florencenet";
   const examples: { network: Network; address: string; text: string }[] = [
     {
-      network: "delphinet",
-      address: "KT1KGkToC8UUJBJLqHcLRkv7xvjWd8JwUuTo",
+      network: "florencenet",
+      address: "KT1Lv2E3PmrWT5Ae4PA4ryES7tbB9r44AAJg",
       text: "HTTPS"
     },
     {
-      network: "delphinet",
-      address: "KT1WTGDQ9j2mFE7SbgmoixNAVXH1ynjdagon",
+      network: "florencenet",
+      address: "KT1E8zhM8JfwQQASypBFUNUXRCTx5mhPLjEt",
       text: "HTTPS empty metadata"
     },
     {
-      network: "delphinet",
-      address: "KT194AJC8UQPguynGdJfEVynF9wfUghDjHSt",
+      network: "florencenet",
+      address: "KT1PQWQTmS3FJMKgqi97rASiEtWKtppJyEcP",
       text: "HTTPS with emoji"
     },
     {
-      network: "delphinet",
-      address: "KT1UQyKUoCat9oQNHPGMDypQ4mWW44DFWzXt",
+      network: "florencenet",
+      address: "KT1PgXqhfqnhedqEgTHpE8mcn3uPZvMKG8kx",
       text: "HTTPS invalida metadata"
     },
     {
-      network: "delphinet",
-      address: "KT1PHNmaHvQNjt1LTqdWobJUi2aeDeWUdQUq",
+      network: "florencenet",
+      address: "KT1UgFv5Z9WRKSk8Z3fAijc1k7AQrr3FJwB1",
       text: "HTTPS with sha256"
     },
     {
-      network: "delphinet",
-      address: "KT1Bhj5fgQioJYnFbg8jeki5SgRd7ZsCfhwp",
+      network: "florencenet",
+      address: "KT1E4sUuWvqC9pgCBEH9xxz6FhuNac11yR3o",
       text: "HTTPS invalid sha256"
     },
     {
-      network: "delphinet",
-      address: "KT1BfdzrP3ybxSbQCNZrmdk2Y5AQjRK1KKkz",
+      network: "florencenet",
+      address: "KT1Phm7Wr121L5w6JkmTyxN8nWUAcN74YKic",
       text: "IPFS"
     },
     {
-      network: "delphinet",
-      address: "KT1TLvewkn73Hb1YTDyX6pE6oD8qVKGTZax3",
-      text: "Tezos Storage"
-    },
-    {
-      network: "delphinet",
-      address: "KT1GPDQvmV37orH1XH3SZmVVKFaMuzzqsmN7",
-      text: "Tezos Storage"
-    },
-    {
-      network: "delphinet",
-      address: "KT1TLvewkn73Hb1YTDyX6pE6oD8qVKGTZax3",
-      text: "Tezos Storage"
-    },
-    {
-      network: "delphinet",
-      address: "KT1Peb7x8DfBMnHyyzdSDgpSyAvaZXLuTz5g",
-      text: "Invalid URI"
-    },
-    {
-      network: "delphinet",
-      address: "KT1Dkn2fHtjtfLJ6SeTRQ7BujKEPk1pGjBAE",
-      text: "Tezos Storage"
-    },
-    {
-      network: "delphinet",
-      address: "KT191tWhzxUvx3ziu1sMYrDweZLrQfgbvGC5",
-      text: "Tezos Storage"
-    },
-    {
-      network: "delphinet",
-      address: "KT1RyihALYEsVCcKP7Ya6teCHs9ii5ZHQxvj",
-      text: "Tezos Storage"
-    },
-    {
-      network: "delphinet",
-      address: "KT1KTkzGMHN4P1XvT4X1kFT5ubcvzxs6ZfSq",
+      network: "florencenet",
+      address: "KT1UhE8bubiWbKUb3RSZLDS2zz7gxkFuUecD",
       text: "Tezos Storage - metadata in current contract"
     },
     {
-      network: "delphinet",
-      address: "KT1BAQ3nEsLrEeZdkij8KiekaWUVQERNF1Hi",
+      network: "florencenet",
+      address: "KT1QNprdGLFXvQwzAtDRT6MK1Pq5AdWQnHsf",
       text: "Tezos Storage - metadata in another contract"
     },
-    /*{
-      network: "delphinet",
-      address: "KT1DmnMEK6NdStW9JLrNyRyd64DRK7FynDoq",
-      text: "Token Metadata in views"
-    }*/
     {
-      network: "delphinet",
-      address: "KT1Nu6FHWrpWF3wAkKkWs1Tb1MMTgNesFrUn",
+      network: "florencenet",
+      address: "KT1JcXciapfTvDXp6T9ZFHoMmMqpb4nykrx8",
       text: "Token Metadata in views"
     },
     {
-      network: "delphinet",
-      address: "KT1NiajZ91LJwyJ5mnoRioXPqF9b4qM8st56",
+      network: "florencenet",
+      address: "KT1UibZW3axNzsaSt8YYfN6RvPyyzMPN55vd",
       text: "Token Metadata in storage"
     }
   ];
@@ -143,8 +101,6 @@
     mainnet: "https://mainnet-tezos.giganode.io",
     florencenet: "https://api.tez.ie/rpc/florencenet",
     edonet: "https://api.tez.ie/rpc/edonet",
-    delphinet: "https://api.tez.ie/rpc/delphinet", // "https://delphinet.smartpy.io",
-    carthagenet: "https://carthagenet.smartpy.io"
   };
   let expandAll = false;
   let contractLink = "";
@@ -353,7 +309,7 @@
     if (
       params.network &&
       params.contract &&
-      ["mainnet", "carthagenet", "delphinet", "edonet"].includes(
+      ["mainnet", "florencenet", "edonet"].includes(
         params.network.toLowerCase()
       ) &&
       validateContractAddress(params.contract) === 3
