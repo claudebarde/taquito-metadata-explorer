@@ -11,11 +11,7 @@
 
   export let params;
 
-  type Network =
-    | "mainnet"
-    | "edonet"
-    | "florencenet"
-    | undefined;
+  type Network = "mainnet" | "edonet" | "florencenet" | undefined;
 
   let Tezos: TezosToolkit;
   let parser: Parser;
@@ -98,9 +94,10 @@
     }
   ];
   const rpcProviders = {
-    mainnet: "https://mainnet-tezos.giganode.io",
+    mainnet: "https://api.tez.ie/rpc/mainnet",
     florencenet: "https://api.tez.ie/rpc/florencenet",
-    edonet: "https://api.tez.ie/rpc/edonet",
+    granadanet: "https://api.tez.ie/rpc/granadanet",
+    edonet: "https://api.tez.ie/rpc/edonet"
   };
   let expandAll = false;
   let contractLink = "";
@@ -652,7 +649,7 @@
         <span id="examples-arrowhead-down">&#x25BC;</span>
       </div>
       <div class="examples-list">
-        {#each examples as example, index}
+        {#each examples.filter(ex => ex.network === network) as example, index}
           <p
             on:click={() => {
               contractAddress = example.address;
@@ -666,6 +663,8 @@
           >
             {example.text}
           </p>
+        {:else}
+          <p>No example</p>
         {/each}
       </div>
     </div>
