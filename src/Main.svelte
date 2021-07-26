@@ -11,7 +11,12 @@
 
   export let params;
 
-  type Network = "mainnet" | "edonet" | "florencenet" | undefined;
+  type Network =
+    | "mainnet"
+    | "edonet"
+    | "florencenet"
+    | "granadanet"
+    | undefined;
 
   let Tezos: TezosToolkit;
   let parser: Parser;
