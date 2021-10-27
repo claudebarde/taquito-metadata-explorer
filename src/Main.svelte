@@ -16,6 +16,7 @@
     | "edonet"
     | "florencenet"
     | "granadanet"
+    | "hangzhounet"
     | undefined;
 
   let Tezos: TezosToolkit;
@@ -99,10 +100,11 @@
     }
   ];
   const rpcProviders = {
-    mainnet: "https://api.tez.ie/rpc/mainnet",
-    florencenet: "https://api.tez.ie/rpc/florencenet",
-    granadanet: "https://api.tez.ie/rpc/granadanet",
-    edonet: "https://api.tez.ie/rpc/edonet"
+    mainnet: "https://mainnet.api.tez.ie",
+    granadanet: "https://granadanet.api.tez.ie",
+    florencenet: "https://florencenet.api.tez.ie",
+    hangzhounet: "https://hangzhounet.api.tez.ie",
+    edonet: "https://edonet.api.tez.ie"
   };
   let expandAll = false;
   let contractLink = "";
