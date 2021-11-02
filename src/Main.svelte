@@ -13,9 +13,9 @@
 
   type Network =
     | "mainnet"
-    | "edonet"
     | "florencenet"
     | "granadanet"
+    | "hangzhounet"
     | undefined;
 
   let Tezos: TezosToolkit;
@@ -40,69 +40,69 @@
   };
   let modalOpen = false;
   const tokenMetadataRegex = /\"token_metadata\":\"([0-9]+)\"/;
-  let network: Network = "florencenet";
+  let network: Network = "hangzhounet";
   const examples: { network: Network; address: string; text: string }[] = [
     {
-      network: "florencenet",
-      address: "KT1Lv2E3PmrWT5Ae4PA4ryES7tbB9r44AAJg",
+      network: "hangzhounet",
+      address: "KT1AekHCGmUU7ZdfBhEdrVJM34CzGRB3iEXF",
       text: "HTTPS"
     },
     {
-      network: "florencenet",
-      address: "KT1E8zhM8JfwQQASypBFUNUXRCTx5mhPLjEt",
+      network: "hangzhounet",
+      address: "KT1EPfHKY1oCjBaW4vGD9ResuXjdRsca3C5C",
       text: "HTTPS empty metadata"
     },
     {
-      network: "florencenet",
-      address: "KT1PQWQTmS3FJMKgqi97rASiEtWKtppJyEcP",
+      network: "hangzhounet",
+      address: "KT1UWvoSuKuXPF6yaM1NDP3rKz9iV1RJx1RN",
       text: "HTTPS with emoji"
     },
     {
-      network: "florencenet",
-      address: "KT1PgXqhfqnhedqEgTHpE8mcn3uPZvMKG8kx",
+      network: "hangzhounet",
+      address: "KT1C5m9xgjJeb96z636PCMrQNhVKj4ogd43S",
       text: "HTTPS invalida metadata"
     },
     {
-      network: "florencenet",
-      address: "KT1UgFv5Z9WRKSk8Z3fAijc1k7AQrr3FJwB1",
+      network: "hangzhounet",
+      address: "KT1BwB2pkYy87NMmpsp2gBwzrNuo6dm4bXq9",
       text: "HTTPS with sha256"
     },
+    // {
+    //   network: "hangzhounet",
+    //   address: "KT1E4sUuWvqC9pgCBEH9xxz6FhuNac11yR3o",
+    //   text: "HTTPS invalid sha256"
+    // },
     {
-      network: "florencenet",
-      address: "KT1E4sUuWvqC9pgCBEH9xxz6FhuNac11yR3o",
-      text: "HTTPS invalid sha256"
-    },
-    {
-      network: "florencenet",
-      address: "KT1Phm7Wr121L5w6JkmTyxN8nWUAcN74YKic",
+      network: "hangzhounet",
+      address: "KT1Fh7B2gpBhYuQB5Ac1No42YDa6fvyqTyRC",
       text: "IPFS"
     },
+    // {
+    //   network: "hangzhounet",
+    //   address: "KT1UhE8bubiWbKUb3RSZLDS2zz7gxkFuUecD",
+    //   text: "Tezos Storage - metadata in current contract"
+    // },
+    // {
+    //   network: "hangzhounet",
+    //   address: "KT1QNprdGLFXvQwzAtDRT6MK1Pq5AdWQnHsf",
+    //   text: "Tezos Storage - metadata in another contract"
+    // },
     {
-      network: "florencenet",
-      address: "KT1UhE8bubiWbKUb3RSZLDS2zz7gxkFuUecD",
-      text: "Tezos Storage - metadata in current contract"
-    },
-    {
-      network: "florencenet",
-      address: "KT1QNprdGLFXvQwzAtDRT6MK1Pq5AdWQnHsf",
-      text: "Tezos Storage - metadata in another contract"
-    },
-    {
-      network: "florencenet",
-      address: "KT1JcXciapfTvDXp6T9ZFHoMmMqpb4nykrx8",
+      network: "hangzhounet",
+      address: "KT1QCnt2H2m9oTueZ4HTxAXHLZwi2iYw3otG",
       text: "Token Metadata in views"
     },
     {
-      network: "florencenet",
-      address: "KT1UibZW3axNzsaSt8YYfN6RvPyyzMPN55vd",
+      network: "hangzhounet",
+      address: "KT1G4gTu78wYdNfGBDy75N1r9evq5iTM8Hy5",
       text: "Token Metadata in storage"
     }
   ];
   const rpcProviders = {
-    mainnet: "https://api.tez.ie/rpc/mainnet",
-    florencenet: "https://api.tez.ie/rpc/florencenet",
-    granadanet: "https://api.tez.ie/rpc/granadanet",
-    edonet: "https://api.tez.ie/rpc/edonet"
+    mainnet: "https://mainnet.api.tez.ie",
+    granadanet: "https://granadanet.api.tez.ie",
+    florencenet: "https://florencenet.api.tez.ie",
+    hangzhounet: "https://hangzhounet.api.tez.ie",
   };
   let expandAll = false;
   let contractLink = "";
